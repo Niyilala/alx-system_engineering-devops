@@ -7,6 +7,8 @@ global
         user haproxy
         group haproxy
         daemon
+        maxconn 2048
+        tune.ssl.default-dh-param 2048
 
         # Default SSL material locations
         ca-base /etc/ssl/certs
@@ -32,22 +34,30 @@ defaults
         errorfile 502 /etc/haproxy/errors/502.http
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
+        option forwardfor
+        option http-server-close
 
-
-
-# start of parameters for zeeweb.tech
-frontend nwabueze.tech-http-frontend
-        bind     *:80
-        redirect scheme https code 301 if !{ ssl_fc }
+frontend haproxy-balancer
+        bind *:80
+        mode http
         http-request set-header X-Forwarded-Proto http
-        default_backend  zeeweb.tech-backend
-frontend b3zaleel-alx.tech-https-frontend
-        bind *:443 ssl crt /etc/letsencrypt/live/www.zeeweb.tech/fullchain.pem
+        default_backend web-backend
+
+
+frontend haproxy-balancer-https
+        bind *:443 ssl crt /etc/haproxy/certs/www.webglobal.tech.pem
         http-request set-header X-Forwarded-Proto https
-        default_backend nwabueze.tech-backend
-backend zeeweb-backend
+        acl letsencrypt-acl path_beg /.well-known/acme-challenge/
+        use_backend letsencrypt-backend if letsencrypt-acl
+        default_backend web-backend
+
+
+
+backend web-backend
         balance roundrobin
-        server 82202-web-01 100.24.74.197:80 check
-        server 82202-web-02 52.91.117.197:80 check
-# end of parameters
-                                            
+	redirect scheme https code 301 if !{ ssl_fc }
+        server 70325-web-01 18.207.140.70:80 check
+        server 70325-web-02 100.24.236.57:80 check
+
+backend letsencrypt-backend
+        server letsencrypt 127.0.0.1:54321
