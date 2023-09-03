@@ -37,9 +37,9 @@ server {
 	# Don't use them in a production server!
 	#
 	# include snippets/snakeoil.conf;
-	
+
 	# IP of server web-01
-	server_name 54.89.181.104;
+	server_name 18.204.6.204;
 
 	# Serve /airbnb-onepage/ route from AirBnB_clone_v2
 	location /airbnb-onepage/ {
