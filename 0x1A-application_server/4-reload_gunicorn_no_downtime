@@ -1,11 +1,3 @@
 #!/usr/bin/env bash
 # Script to gracefully reload Gunicorn configurations
-gunicorn_pid=$(pgrep -f "gunicorn.*:app")
-
-if [ -n "$gunicorn_pid" ]; then
-    echo "Reloading Gunicorn gracefully (PID: $gunicorn_pid)..."
-    kill -HUP "$gunicorn_pid"
-    echo "Reload complete."
-else
-    echo "Gunicorn is not running or its PID could not be found."
-fi
+pkill -HUP gunicorn
